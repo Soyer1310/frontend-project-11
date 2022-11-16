@@ -1,0 +1,41 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "RSS-aggregator",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx -n --experimental-vm-modules jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Soyer1310/frontend-project-11.git"
+  },
+  "author": "Artem Melnikov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Soyer1310/frontend-project-11/issues"
+  },
+  "homepage": "https://github.com/Soyer1310/frontend-project-11#readme",
+  "devDependencies": {
+    "@babel/core": "^7.18.5",
+    "@babel/preset-env": "^7.18.0",
+    "babel-loader": "^9.1.0",
+    "css-loader": "^6.7.2",
+    "eslint": "^8.27.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^27.1.5",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.6.1",
+    "postcss-loader": "^7.0.1",
+    "sass": "^1.39.0",
+    "sass-loader": "^12.1.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.11.1"
+  },
+  "dependencies": {
+    "bootstrap": "^5.2.2"
+  }
+}
