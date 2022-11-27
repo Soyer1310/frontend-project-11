@@ -5,6 +5,7 @@ import _ from 'lodash';
 import resources from './locales/index.js';
 import render from './render.js';
 import validate from './validation.js';
+import postsRender from './postsRender.js';
 
 const getRSScontent = (url) => {
   const preparedURL = new URL('https://allorigins.hexlet.app/get');
@@ -62,9 +63,33 @@ export default () => {
     posts: [],
   };
 
-  const watchedState = onChange(state, () => {
-    render(state, i18nInstance);
+  const watchedState = onChange(state, (path) => {
+    if (path === 'posts') {
+      postsRender(state, i18nInstance);
+    } else {
+      render(state, i18nInstance);
+    }
   });
+
+  const updater = () => {
+    setTimeout(() => {
+      if (watchedState.posts.length > 0) {
+        const links = state.rssForm.feedList;
+        links.forEach((link) => {
+          getRSScontent(link)
+            .then(((resp) => XMLparser(resp.data.contents)))
+            .then((document) => {
+              const currentTitle = document.querySelector('title').textContent;
+              const [id] = watchedState.feeds.filter((feed) => feed.title === currentTitle)
+                .map((feed) => feed.id);
+              const posts = addPosts(document, id);
+              watchedState.posts = _.unionWith(watchedState.posts, posts, _.isEqual);
+            });
+        });
+      }
+      updater(state);
+    }, 5000);
+  };
 
   const form = document.querySelector('form');
   form.addEventListener('submit', (e) => {
@@ -83,13 +108,12 @@ export default () => {
         .then((document) => {
           addFeed(state, document);
           watchedState.rssForm.state = 'formSubmited';
-          console.log(state);
           watchedState.rssForm.feedList.push(urlString);
           watchedState.rssForm.errors = [];
         })
         .catch(() => {
           watchedState.rssForm.validation = 'invalid';
-          watchedState.rssForm.errors = ['error_messages.incorrect_format'];
+          watchedState.rssForm.errors = ['error_messages.incorrect_resource'];
         });
     }).catch((error) => {
       watchedState.rssForm.validation = 'invalid';
@@ -98,4 +122,5 @@ export default () => {
     });
   });
   render(state, i18nInstance);
+  updater(state);
 };
