@@ -1,11 +1,13 @@
 import axios from 'axios';
-import onChange from 'on-change';
 import i18next from 'i18next';
 import _ from 'lodash';
-import resources from './locales/index.js';
+import onChange from 'on-change';
 import render from './render.js';
-import validate from './validation.js';
 import postsRender from './postsRender.js';
+import modalRender from './modalRender.js';
+import resources from './locales/index.js';
+import validate from './validation.js';
+import visitRender from './visitRender.js';
 
 const getRSScontent = (url) => {
   const preparedURL = new URL('https://allorigins.hexlet.app/get');
@@ -19,27 +21,34 @@ const XMLparser = (XMLstring) => {
   return parser.parseFromString(XMLstring, 'application/xml');
 };
 
-const addPosts = (document, id) => {
-  const items = Array.from(document.querySelectorAll('item'));
+const createPostsUi = (posts) => {
+  const postsUi = posts.map((post) => {
+    const { postId } = post;
+    const visibility = 'hidden';
+    return { postId, visibility };
+  });
+  return postsUi;
+};
+
+const addPosts = (rss, feedID) => {
+  const items = Array.from(rss.querySelectorAll('item'));
   const posts = items.map((item) => {
     const title = item.querySelector('title').textContent;
     const description = item.querySelector('description').textContent;
     const link = item.querySelector('link').textContent;
+    const postId = _.uniqueId();
     return {
-      title, description, link, id,
+      title, description, link, feedID, postId,
     };
   });
   return posts;
 };
 
-const addFeed = (state, document) => {
-  const title = document.querySelector('title').textContent;
-  const description = document.querySelector('description').textContent;
-  const id = _.uniqueId();
-  const feed = { title, description, id };
-  const posts = addPosts(document, id);
-  state.feeds.push(feed);
-  state.posts.push(...posts);
+const addFeed = (state, rss, feedID) => {
+  const title = rss.querySelector('title').textContent;
+  const description = rss.querySelector('description').textContent;
+  const feed = { title, description, feedID };
+  return feed;
 };
 
 export default () => {
@@ -61,15 +70,39 @@ export default () => {
     },
     feeds: [],
     posts: [],
+    uiPosts: [],
+    visitedPosts: [],
   };
-
-  const watchedState = onChange(state, (path) => {
+  const watchedState = onChange(state, (path, value) => {
     if (path === 'posts') {
       postsRender(state, i18nInstance);
-    } else {
+    } else if (value === 'visible') {
+      modalRender(state);
+    } else if (path === 'visitedPosts') {
+      visitRender(state.visitedPosts);
+    } else if (path !== 'uiPosts') {
       render(state, i18nInstance);
     }
   });
+
+  const comparePosts = (a, b) => {
+    if (a.title === b.title && a.description === b.description) {
+      return true;
+    }
+    return false;
+  };
+
+  const handler = (e) => {
+    const clickedButton = e.target;
+    const clickedButtonId = clickedButton.dataset.id;
+    const choosenPost = _.find(watchedState.uiPosts, (uiPost) => uiPost.postId === clickedButtonId);
+    watchedState.uiPosts.forEach((item) => {
+      const currentPost = item;
+      currentPost.visibility = 'hidden';
+    });
+    watchedState.visitedPosts.push(clickedButtonId);
+    choosenPost.visibility = 'visible';
+  };
 
   const updater = () => {
     setTimeout(() => {
@@ -78,12 +111,15 @@ export default () => {
         links.forEach((link) => {
           getRSScontent(link)
             .then(((resp) => XMLparser(resp.data.contents)))
-            .then((document) => {
-              const currentTitle = document.querySelector('title').textContent;
-              const [id] = watchedState.feeds.filter((feed) => feed.title === currentTitle)
-                .map((feed) => feed.id);
-              const posts = addPosts(document, id);
-              watchedState.posts = _.unionWith(watchedState.posts, posts, _.isEqual);
+            .then((parsedRSS) => {
+              const posts = addPosts(parsedRSS);
+              const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
+              watchedState.posts = unionPosts;
+              watchedState.uiPosts = createPostsUi(unionPosts);
+              const buttons = document.querySelectorAll('.preview-btn');
+              buttons.forEach((button) => {
+                button.addEventListener('click', handler);
+              });
             });
         });
       }
@@ -105,11 +141,21 @@ export default () => {
           watchedState.rssForm.errors = ['error_messages.network_error'];
         })
         .then(((resp) => XMLparser(resp.data.contents)))
-        .then((document) => {
-          addFeed(state, document);
+        .then((parsedRSS) => {
+          const feedID = _.uniqueId();
+          const feed = addFeed(state, parsedRSS, feedID);
+          watchedState.feeds.push(feed);
+          const posts = addPosts(parsedRSS, feedID);
+          const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
+          watchedState.posts = unionPosts;
+          watchedState.uiPosts = createPostsUi(unionPosts);
           watchedState.rssForm.state = 'formSubmited';
           watchedState.rssForm.feedList.push(urlString);
           watchedState.rssForm.errors = [];
+          const buttons = document.querySelectorAll('.preview-btn');
+          buttons.forEach((button) => {
+            button.addEventListener('click', handler);
+          });
         })
         .catch(() => {
           watchedState.rssForm.validation = 'invalid';
@@ -122,5 +168,5 @@ export default () => {
     });
   });
   render(state, i18nInstance);
-  updater(state);
+  updater();
 };
