@@ -1,5 +1,4 @@
 import buildCard from './buildCard.js';
-import postsRender from './postsRender.js';
 
 const input = document.getElementById('url-input');
 const messagesElem = document.querySelector('.feedback');
@@ -32,7 +31,7 @@ const initializatior = (state, i18nInstance) => {
   input.placeholder = i18nInstance.t('placeholder');
   const label = document.querySelector('label');
   label.textContent = i18nInstance.t('placeholder');
-  const button = document.querySelector('button');
+  const button = document.querySelector('button.btn-primary');
   button.textContent = i18nInstance.t('button');
   const example = document.querySelector('.text-muted');
   example.textContent = i18nInstance.t('example');
@@ -54,7 +53,6 @@ export default (state, i18nInstance) => {
     messagesElem.classList.remove('text-danger');
     messagesElem.classList.add('text-success');
     messagesElem.textContent = i18nInstance.t('successful_message');
-    postsRender(state, i18nInstance);
     buildFeedsList(state, i18nInstance);
     input.value = '';
     input.focus();
