@@ -10,16 +10,21 @@ export default (state, i18nInstance) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const link = document.createElement('a');
-    link.classList.add('fw-bold');
+    if (state.visitedPosts.includes(post.postId)) {
+      link.classList.add('fw-normal');
+      link.classList.add('link-secondary');
+    } else {
+      link.classList.add('fw-bold');
+    }
     link.setAttribute('href', post.link);
     link.setAttribute('target', 'blank');
-    link.dataset.id = post.id;
+    link.dataset.id = post.postId;
     link.textContent = post.title;
     li.append(link);
     const button = document.createElement('button');
-    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'preview-btn');
     button.setAttribute('type', 'button');
-    button.dataset.id = post.id;
+    button.dataset.id = post.postId;
     button.dataset.bsToggle = 'model';
     button.dataset.bsTarget = '#model';
     button.textContent = i18nInstance.t('view');
