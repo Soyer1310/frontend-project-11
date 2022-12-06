@@ -12,7 +12,6 @@ export default {
     error_messages: {
       incorrect_format: 'The link must be a valid URL',
       duble_link: 'RSS already exists',
-      field_invalid: 'Feild is invalid',
       incorrect_resource: 'Resource does not contain valid RSS',
       required_feild: 'This is a required field',
       network_error: 'Network error',

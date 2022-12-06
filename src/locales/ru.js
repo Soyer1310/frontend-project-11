@@ -12,9 +12,8 @@ export default {
     error_messages: {
       incorrect_format: 'Ссылка должна быть валидным URL',
       duble_link: 'RSS уже существует',
-      field_invalid: 'Поле не валидно',
       incorrect_resource: 'Ресурс не содержит валидный RSS',
-      required_feild: 'Поле не должно быть пустым',
+      required_feild: 'Не должно быть пустым',
       network_error: 'Ошибка сети',
       parsing_error: 'Ошибка парсинга RSS-файла',
     },
