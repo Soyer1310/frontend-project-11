@@ -159,7 +159,9 @@ export default () => {
         })
         .catch(() => {
           watchedState.rssForm.validation = 'invalid';
-          watchedState.rssForm.errors = ['error_messages.incorrect_resource'];
+          if (watchedState.rssForm.errors.length === 0) {
+            watchedState.rssForm.errors = ['error_messages.incorrect_resource'];
+          }
         });
     }).catch((error) => {
       watchedState.rssForm.validation = 'invalid';
