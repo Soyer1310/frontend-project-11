@@ -17,15 +17,6 @@ const getRSScontent = (url) => {
   return axios.get(preparedURL);
 };
 
-const createPostsUi = (posts) => {
-  const postsUi = posts.map((post) => {
-    const { postId } = post;
-    const visibility = 'hidden';
-    return { postId, visibility };
-  });
-  return postsUi;
-};
-
 export default () => {
   const defaultLanguage = 'ru';
   const i18nInstance = i18next.createInstance();
@@ -82,7 +73,6 @@ export default () => {
               const { posts } = parsedRSS;
               const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
               watchedState.posts = unionPosts;
-              watchedState.uiPosts = createPostsUi(unionPosts);
               const buttons = document.querySelectorAll('.preview-btn');
               buttons.forEach((button) => {
                 button.addEventListener('click', handler);
@@ -115,7 +105,6 @@ export default () => {
           const { posts } = parsedRSS;
           const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
           watchedState.posts = unionPosts;
-          watchedState.uiPosts = createPostsUi(unionPosts);
           watchedState.rssForm.state = 'formSubmited';
           watchedState.rssForm.feedList.push(urlString);
           watchedState.rssForm.errors = [];
