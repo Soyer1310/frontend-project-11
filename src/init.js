@@ -45,17 +45,15 @@ export default () => {
     },
     feeds: [],
     posts: [],
-    uiPosts: [],
     visitedPosts: [],
   };
   const watchedState = onChange(state, (path, value) => {
     if (path === 'posts') {
       postsRender(state, i18nInstance);
-    } else if (value === 'visible') {
-      modalRender(state);
     } else if (path === 'visitedPosts') {
+      modalRender(state, value);
       visitRender(state.visitedPosts);
-    } else if (path !== 'uiPosts') {
+    } else {
       render(state, i18nInstance);
     }
   });
@@ -70,13 +68,7 @@ export default () => {
   const handler = (e) => {
     const clickedButton = e.target;
     const clickedButtonId = clickedButton.dataset.id;
-    const choosenPost = _.find(watchedState.uiPosts, (uiPost) => uiPost.postId === clickedButtonId);
-    watchedState.uiPosts.forEach((item) => {
-      const currentPost = item;
-      currentPost.visibility = 'hidden';
-    });
     watchedState.visitedPosts.push(clickedButtonId);
-    choosenPost.visibility = 'visible';
   };
 
   const updater = () => {
