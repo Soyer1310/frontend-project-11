@@ -1,14 +1,11 @@
 import axios from 'axios';
 import i18next from 'i18next';
 import _ from 'lodash';
-import onChange from 'on-change';
 import render from './render.js';
-import postsRender from './postsRender.js';
-import modalRender from './modalRender.js';
 import resources from './locales/index.js';
 import validate from './validation.js';
-import visitRender from './visitRender.js';
 import XMLparser from './parser.js';
+import watcher from './watcher.js';
 
 const getRSScontent = (url) => {
   const preparedURL = new URL('https://allorigins.hexlet.app/get');
@@ -37,16 +34,7 @@ export default () => {
       posts: [],
       visitedPosts: [],
     };
-    const watchedState = onChange(state, (path, value) => {
-      if (path === 'posts') {
-        postsRender(state, i18nInstance);
-      } else if (path === 'visitedPosts') {
-        modalRender(state, value);
-        visitRender(state.visitedPosts);
-      } else {
-        render(state, i18nInstance);
-      }
-    });
+    const watchedState = watcher(state, i18nInstance);
     const comparePosts = (a, b) => {
       if (a.postTitle === b.postTitle && a.postDescription === b.postDescription) {
         return true;
