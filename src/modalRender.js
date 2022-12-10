@@ -12,8 +12,8 @@ export default (state) => {
   const currentPostID = _.find(state.uiPosts, (uiPost) => uiPost.visibility === 'visible').postId;
   state.posts.forEach((post) => {
     if (post.postId === currentPostID) {
-      modalTitle.textContent = post.title;
-      modalDescription.textContent = post.description;
+      modalTitle.textContent = post.postTitle;
+      modalDescription.textContent = post.postDescription;
       modalLink.href = post.link;
     }
   });
