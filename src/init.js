@@ -8,17 +8,13 @@ import modalRender from './modalRender.js';
 import resources from './locales/index.js';
 import validate from './validation.js';
 import visitRender from './visitRender.js';
+import XMLparser from './parser.js';
 
 const getRSScontent = (url) => {
   const preparedURL = new URL('https://allorigins.hexlet.app/get');
   preparedURL.searchParams.set('disableCache', true);
   preparedURL.searchParams.set('url', url);
   return axios.get(preparedURL);
-};
-
-const XMLparser = (XMLstring) => {
-  const parser = new DOMParser();
-  return parser.parseFromString(XMLstring, 'application/xml');
 };
 
 const createPostsUi = (posts) => {
@@ -28,27 +24,6 @@ const createPostsUi = (posts) => {
     return { postId, visibility };
   });
   return postsUi;
-};
-
-const addPosts = (rss, feedID) => {
-  const items = Array.from(rss.querySelectorAll('item'));
-  const posts = items.map((item) => {
-    const title = item.querySelector('title').textContent;
-    const description = item.querySelector('description').textContent;
-    const link = item.querySelector('link').textContent;
-    const postId = _.uniqueId();
-    return {
-      title, description, link, feedID, postId,
-    };
-  });
-  return posts;
-};
-
-const addFeed = (state, rss, feedID) => {
-  const title = rss.querySelector('title').textContent;
-  const description = rss.querySelector('description').textContent;
-  const feed = { title, description, feedID };
-  return feed;
 };
 
 export default () => {
@@ -86,7 +61,7 @@ export default () => {
   });
 
   const comparePosts = (a, b) => {
-    if (a.title === b.title && a.description === b.description) {
+    if (a.postTitle === b.postTitle && a.postDescription === b.postDescription) {
       return true;
     }
     return false;
@@ -112,7 +87,7 @@ export default () => {
           getRSScontent(link)
             .then(((resp) => XMLparser(resp.data.contents)))
             .then((parsedRSS) => {
-              const posts = addPosts(parsedRSS);
+              const { posts } = parsedRSS;
               const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
               watchedState.posts = unionPosts;
               watchedState.uiPosts = createPostsUi(unionPosts);
@@ -142,10 +117,10 @@ export default () => {
         })
         .then(((resp) => XMLparser(resp.data.contents)))
         .then((parsedRSS) => {
-          const feedID = _.uniqueId();
-          const feed = addFeed(state, parsedRSS, feedID);
+          const { feedTitle, feedDescription, feedID } = parsedRSS;
+          const feed = { feedTitle, feedDescription, feedID };
           watchedState.feeds.push(feed);
-          const posts = addPosts(parsedRSS, feedID);
+          const { posts } = parsedRSS;
           const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
           watchedState.posts = unionPosts;
           watchedState.uiPosts = createPostsUi(unionPosts);
