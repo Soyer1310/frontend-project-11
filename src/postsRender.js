@@ -19,7 +19,7 @@ export default (state, i18nInstance) => {
     link.setAttribute('href', post.link);
     link.setAttribute('target', 'blank');
     link.dataset.id = post.postId;
-    link.textContent = post.title;
+    link.textContent = post.postTitle;
     li.append(link);
     const button = document.createElement('button');
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'preview-btn');
