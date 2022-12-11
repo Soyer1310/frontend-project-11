@@ -42,29 +42,29 @@ export default () => {
       return false;
     };
     const handler = (e) => {
-      const clickedButton = e.target;
-      const clickedButtonId = clickedButton.dataset.id;
-      watchedState.visitedPosts.push(clickedButtonId);
+      if (e.target.dataset.id) {
+        const clickedButtonId = e.target.dataset.id;
+        watchedState.visitedPosts.push(clickedButtonId);
+      }
     };
     const updater = () => {
       setTimeout(() => {
         if (watchedState.posts.length > 0) {
           const links = state.rssForm.feedList;
-          links.forEach((link) => {
-            getRSScontent(link)
-              .then(((resp) => XMLparser(resp.data.contents)))
-              .then((parsedRSS) => {
-                const { posts } = parsedRSS;
-                const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
-                watchedState.posts = unionPosts;
-                const buttons = document.querySelectorAll('.preview-btn');
-                buttons.forEach((button) => {
-                  button.addEventListener('click', handler);
-                });
-              });
-          });
+          const requests = links.map((link) => getRSScontent(link));
+          const requestsPromise = Promise.all(requests);
+          requestsPromise.then((contents) => contents.forEach((content) => {
+            const parsedRSS = XMLparser(content.data.contents);
+            const { posts } = parsedRSS;
+            const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
+            watchedState.posts = unionPosts;
+          }))
+            .finally(() => {
+              updater(state);
+            });
+        } else {
+          updater(state);
         }
-        updater(state);
       }, 5000);
     };
     const form = document.querySelector('form');
@@ -91,10 +91,6 @@ export default () => {
             watchedState.rssForm.state = 'formSubmited';
             watchedState.rssForm.feedList.push(urlString);
             watchedState.rssForm.errors = [];
-            const buttons = document.querySelectorAll('.preview-btn');
-            buttons.forEach((button) => {
-              button.addEventListener('click', handler);
-            });
           })
           .catch(() => {
             watchedState.rssForm.validation = 'invalid';
@@ -108,6 +104,9 @@ export default () => {
         watchedState.rssForm.errors = messages;
       });
     });
+    const postsContainer = document.querySelector('div.posts');
+    postsContainer.addEventListener('click', handler);
+
     render(state, i18nInstance);
     updater();
   });
