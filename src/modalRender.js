@@ -5,7 +5,6 @@ export default (state, visitedPosts) => {
     keyboard: false,
   });
   const currentPostID = visitedPosts[visitedPosts.length - 1];
-  console.log(currentPostID);
   myModal.show();
   const modalTitle = document.querySelector('.modal-title');
   const modalDescription = document.querySelector('.modal-body');
