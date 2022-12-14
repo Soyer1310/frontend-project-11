@@ -42,7 +42,6 @@ export default (state, i18nInstance) => {
   initializatior(state, i18nInstance);
   if (state.rssForm.validation === 'invalid') {
     input.classList.add('is-invalid');
-    input.value = state.rssForm.value;
     messagesElem.textContent = state.rssForm.errors.map((err) => i18nInstance.t(err)).join('\n');
     input.blur();
   }
