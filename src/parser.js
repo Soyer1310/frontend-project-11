@@ -1,11 +1,12 @@
 import _ from 'lodash';
 
-export default (XMLstring) => {
+export default (XMLstring, urlString) => {
   const parser = new DOMParser();
   const parsedContent = parser.parseFromString(XMLstring, 'application/xml');
   const feedID = _.uniqueId();
   const feedTitle = parsedContent.querySelector('title').textContent;
   const feedDescription = parsedContent.querySelector('description').textContent;
+  const feedLink = urlString;
   const items = Array.from(parsedContent.querySelectorAll('item'));
   const posts = items.map((item) => {
     const postTitle = item.querySelector('title').textContent;
@@ -17,6 +18,6 @@ export default (XMLstring) => {
     };
   });
   return {
-    feedTitle, feedDescription, feedID, posts,
+    feedTitle, feedDescription, feedLink, feedID, posts,
   };
 };
