@@ -40,7 +40,7 @@ const initializatior = (i18nInstance, elements) => {
 export default (state, i18nInstance, elements) => {
   const { input } = elements;
   const { messagesElem } = elements;
-  initializatior(state, i18nInstance, elements);
+  initializatior(i18nInstance, elements);
   if (state.rssForm.validation === 'invalid') {
     input.classList.add('is-invalid');
     messagesElem.textContent = state.rssForm.errors.map((err) => i18nInstance.t(err)).join('\n');
