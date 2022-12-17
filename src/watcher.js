@@ -12,7 +12,7 @@ export default (state, i18nInstance, elements) => {
       modalRender(state, value, elements);
       visitRender(state.visitedPosts);
     } else {
-      render(state, i18nInstance, render);
+      render(state, i18nInstance, elements);
     }
   });
   return watchedState;
