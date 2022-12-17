@@ -1,8 +1,7 @@
 import buildCard from './buildCard.js';
 
-const postsContainer = document.querySelector('div.posts');
-
-export default (state, i18nInstance) => {
+export default (state, i18nInstance, elements) => {
+  const { postsContainer } = elements;
   postsContainer.innerHTML = '';
   const card = buildCard(i18nInstance, 'posts_titel');
   const ul = card.querySelector('ul');
