@@ -1,10 +1,10 @@
 import { Modal } from 'bootstrap';
 
-export default (state, visitedPosts, elements) => {
+export default (state, elements) => {
   const myModal = new Modal(elements.modal, {
     keyboard: false,
   });
-  const currentPostID = visitedPosts[visitedPosts.length - 1];
+  const currentPostID = state.modal.modalPostId;
   myModal.show();
   const { modalTitle } = elements;
   const { modalDescription } = elements;
