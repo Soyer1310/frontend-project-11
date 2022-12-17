@@ -2,7 +2,6 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import _ from 'lodash';
-import render from './render.js';
 import resources from './locales/index.js';
 import XMLparser from './parser.js';
 import watcher from './watcher.js';
@@ -82,7 +81,7 @@ const updater = (watchedState) => {
     state.posts = unionPosts;
   }))
     .finally(() => {
-      setTimeout(updater, 5000);
+      setTimeout(() => updater(watchedState), 5000);
     });
 };
 
@@ -145,8 +144,6 @@ export default () => {
         watchedState.modal.modalPostId = clickedButtonId;
       }
     });
-
-    render(state, i18nInstance, elements);
     updater(watchedState);
   });
 };
