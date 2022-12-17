@@ -35,6 +35,57 @@ const getRSScontent = (url) => {
   return axios.get(preparedURL);
 };
 
+const comparePosts = (a, b) => {
+  if (a.postTitle === b.postTitle && a.postDescription === b.postDescription) {
+    return true;
+  }
+  return false;
+};
+
+const loadFeed = (state, urlString) => {
+  const watchedState = state;
+  getRSScontent(urlString)
+    .catch(() => {
+      watchedState.rssForm.errors = ['error_messages.network_error'];
+    })
+    .then(((resp) => XMLparser(resp.data.contents, urlString)))
+    .then((parsedRSS) => {
+      const {
+        feedTitle, feedDescription, feedLink, feedID,
+      } = parsedRSS;
+      const feed = {
+        feedTitle, feedDescription, feedLink, feedID,
+      };
+      watchedState.feeds.push(feed);
+      const { posts } = parsedRSS;
+      const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
+      watchedState.posts = unionPosts;
+      watchedState.rssForm.state = 'formSubmited';
+    })
+    .catch(() => {
+      watchedState.rssForm.validation = 'invalid';
+      if (watchedState.rssForm.errors.length === 0) {
+        watchedState.rssForm.errors = ['error_messages.incorrect_resource'];
+      }
+    });
+};
+
+const updater = (watchedState) => {
+  const state = watchedState;
+  const links = getFeedsLinks(state.feeds);
+  const requests = links.map((link) => getRSScontent(link));
+  const requestsPromise = Promise.all(requests);
+  requestsPromise.then((contents) => contents.forEach((content) => {
+    const parsedRSS = XMLparser(content.data.contents);
+    const { posts } = parsedRSS;
+    const unionPosts = _.unionWith(state.posts, posts, comparePosts);
+    state.posts = unionPosts;
+  }))
+    .finally(() => {
+      setTimeout(updater, 5000);
+    });
+};
+
 export default () => {
   const defaultLanguage = 'ru';
   const i18nInstance = i18next.createInstance();
@@ -70,12 +121,6 @@ export default () => {
     };
 
     const watchedState = watcher(state, i18nInstance, elements);
-    const comparePosts = (a, b) => {
-      if (a.postTitle === b.postTitle && a.postDescription === b.postDescription) {
-        return true;
-      }
-      return false;
-    };
     const handler = (e) => {
       if (e.target.dataset.id) {
         const clickedButtonId = e.target.dataset.id;
@@ -86,20 +131,7 @@ export default () => {
         watchedState.modal.modalPostId = clickedButtonId;
       }
     };
-    const updater = () => {
-      const links = getFeedsLinks(state.feeds);
-      const requests = links.map((link) => getRSScontent(link));
-      const requestsPromise = Promise.all(requests);
-      requestsPromise.then((contents) => contents.forEach((content) => {
-        const parsedRSS = XMLparser(content.data.contents);
-        const { posts } = parsedRSS;
-        const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
-        watchedState.posts = unionPosts;
-      }))
-        .finally(() => {
-          setTimeout(updater, 5000);
-        });
-    };
+
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       watchedState.rssForm.state = 'formFilling';
@@ -108,30 +140,7 @@ export default () => {
       const urlString = formData.get('url');
       validate(urlString, watchedState.feeds).then(() => {
         watchedState.rssForm.validation = 'valid';
-        getRSScontent(urlString)
-          .catch(() => {
-            watchedState.rssForm.errors = ['error_messages.network_error'];
-          })
-          .then(((resp) => XMLparser(resp.data.contents, urlString)))
-          .then((parsedRSS) => {
-            const {
-              feedTitle, feedDescription, feedLink, feedID,
-            } = parsedRSS;
-            const feed = {
-              feedTitle, feedDescription, feedLink, feedID,
-            };
-            watchedState.feeds.push(feed);
-            const { posts } = parsedRSS;
-            const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
-            watchedState.posts = unionPosts;
-            watchedState.rssForm.state = 'formSubmited';
-          })
-          .catch(() => {
-            watchedState.rssForm.validation = 'invalid';
-            if (watchedState.rssForm.errors.length === 0) {
-              watchedState.rssForm.errors = ['error_messages.incorrect_resource'];
-            }
-          });
+        loadFeed(watchedState, urlString);
       }).catch((error) => {
         watchedState.rssForm.validation = 'invalid';
         const messages = error.errors.map((err) => `error_messages.${err}`);
