@@ -1,10 +1,7 @@
 import buildCard from './buildCard.js';
 
-const input = document.getElementById('url-input');
-const messagesElem = document.querySelector('.feedback');
-const feedsContainer = document.querySelector('div.feeds');
-
-const buildFeedsList = (state, i18nInstance) => {
+const buildFeedsList = (state, i18nInstance, elements) => {
+  const { feedsContainer } = elements;
   feedsContainer.innerHTML = '';
   const card = buildCard(i18nInstance, 'feeds_titel');
   const ul = card.querySelector('ul');
@@ -23,7 +20,9 @@ const buildFeedsList = (state, i18nInstance) => {
   feedsContainer.append(card);
 };
 
-const initializatior = (state, i18nInstance) => {
+const initializatior = (i18nInstance, elements) => {
+  const { input } = elements;
+  const { messagesElem } = elements;
   const header = document.querySelector('h1');
   header.textContent = i18nInstance.t('header');
   const introdution = document.querySelector('.lead');
@@ -38,8 +37,10 @@ const initializatior = (state, i18nInstance) => {
   messagesElem.textContent = '';
 };
 
-export default (state, i18nInstance) => {
-  initializatior(state, i18nInstance);
+export default (state, i18nInstance, elements) => {
+  const { input } = elements;
+  const { messagesElem } = elements;
+  initializatior(state, i18nInstance, elements);
   if (state.rssForm.validation === 'invalid') {
     input.classList.add('is-invalid');
     messagesElem.textContent = state.rssForm.errors.map((err) => i18nInstance.t(err)).join('\n');
@@ -52,7 +53,7 @@ export default (state, i18nInstance) => {
     messagesElem.classList.remove('text-danger');
     messagesElem.classList.add('text-success');
     messagesElem.textContent = i18nInstance.t('successful_message');
-    buildFeedsList(state, i18nInstance);
+    buildFeedsList(state, i18nInstance, elements);
     input.value = '';
     input.focus();
   }
