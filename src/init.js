@@ -53,7 +53,20 @@ export default () => {
       posts: [],
       visitedPosts: [],
     };
-    const watchedState = watcher(state, i18nInstance);
+
+    const elements = {
+      form: document.querySelector('form'),
+      input: document.getElementById('url-input'),
+      messagesElem: document.querySelector('.feedback'),
+      feedsContainer: document.querySelector('div.feeds'),
+      postsContainer: document.querySelector('div.posts'),
+      modal: document.getElementById('modal'),
+      modalTitle: document.querySelector('.modal-title'),
+      modalDescription: document.querySelector('.modal-body'),
+      modalLink: document.querySelector('.full-article'),
+    };
+
+    const watchedState = watcher(state, i18nInstance, elements);
     const comparePosts = (a, b) => {
       if (a.postTitle === b.postTitle && a.postDescription === b.postDescription) {
         return true;
@@ -80,8 +93,7 @@ export default () => {
           setTimeout(updater, 5000);
         });
     };
-    const form = document.querySelector('form');
-    form.addEventListener('submit', (e) => {
+    elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       watchedState.rssForm.state = 'formFilling';
       watchedState.rssForm.errors = [];
@@ -119,10 +131,9 @@ export default () => {
         watchedState.rssForm.errors = messages;
       });
     });
-    const postsContainer = document.querySelector('div.posts');
-    postsContainer.addEventListener('click', handler);
+    elements.postsContainer.addEventListener('click', handler);
 
-    render(state, i18nInstance);
+    render(state, i18nInstance, elements);
     updater();
   });
 };
