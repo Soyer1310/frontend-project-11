@@ -121,17 +121,6 @@ export default () => {
     };
 
     const watchedState = watcher(state, i18nInstance, elements);
-    const handler = (e) => {
-      if (e.target.dataset.id) {
-        const clickedButtonId = e.target.dataset.id;
-        if (!watchedState.visitedPosts.includes(clickedButtonId)) {
-          watchedState.visitedPosts.push(clickedButtonId);
-        }
-        watchedState.modal.modalPostId = null;
-        watchedState.modal.modalPostId = clickedButtonId;
-      }
-    };
-
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       watchedState.rssForm.state = 'formFilling';
@@ -147,9 +136,17 @@ export default () => {
         watchedState.rssForm.errors = messages;
       });
     });
-    elements.postsContainer.addEventListener('click', handler);
+    elements.postsContainer.addEventListener('click', (e) => {
+      if (e.target.dataset.id) {
+        const clickedButtonId = e.target.dataset.id;
+        if (!watchedState.visitedPosts.includes(clickedButtonId)) {
+          watchedState.visitedPosts.push(clickedButtonId);
+        }
+        watchedState.modal.modalPostId = clickedButtonId;
+      }
+    });
 
     render(state, i18nInstance, elements);
-    updater();
+    updater(watchedState);
   });
 };
