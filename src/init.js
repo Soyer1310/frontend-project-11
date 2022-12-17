@@ -49,6 +49,9 @@ export default () => {
         errors: [],
         validation: 'valid',
       },
+      modal: {
+        modalPostId: null,
+      },
       feeds: [],
       posts: [],
       visitedPosts: [],
@@ -76,7 +79,11 @@ export default () => {
     const handler = (e) => {
       if (e.target.dataset.id) {
         const clickedButtonId = e.target.dataset.id;
-        watchedState.visitedPosts.push(clickedButtonId);
+        if (!watchedState.visitedPosts.includes(clickedButtonId)) {
+          watchedState.visitedPosts.push(clickedButtonId);
+        }
+        watchedState.modal.modalPostId = null;
+        watchedState.modal.modalPostId = clickedButtonId;
       }
     };
     const updater = () => {
