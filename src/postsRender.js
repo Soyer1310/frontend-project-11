@@ -24,8 +24,8 @@ export default (state, i18nInstance, elements) => {
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'preview-btn');
     button.setAttribute('type', 'button');
     button.dataset.id = post.postId;
-    button.dataset.bsToggle = 'model';
-    button.dataset.bsTarget = '#model';
+    button.dataset.bsToggle = 'modal';
+    button.dataset.bsTarget = '#modal';
     button.textContent = i18nInstance.t('view');
     li.append(button);
     ul.prepend(li);
