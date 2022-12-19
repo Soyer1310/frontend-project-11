@@ -8,17 +8,6 @@ import watcher from './watcher.js';
 
 const getFeedsLinks = (feeds) => feeds.map((feed) => feed.feedLink);
 
-yup.setLocale({
-  mixed: {
-    default: 'field_invalid',
-    notOneOf: 'duble_link',
-    required: 'required_feild',
-  },
-  string: {
-    url: 'incorrect_format',
-  },
-});
-
 const validate = (value, feedList) => {
   const links = getFeedsLinks(feedList);
   const urlSchema = yup.string().url().required().notOneOf(
@@ -86,6 +75,17 @@ const updater = (watchedState) => {
 };
 
 export default () => {
+  yup.setLocale({
+    mixed: {
+      default: 'field_invalid',
+      notOneOf: 'duble_link',
+      required: 'required_feild',
+    },
+    string: {
+      url: 'incorrect_format',
+    },
+  });
+
   const defaultLanguage = 'ru';
   const i18nInstance = i18next.createInstance();
   i18nInstance.init({
