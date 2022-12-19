@@ -33,9 +33,6 @@ const comparePosts = (a, b) => {
 const loadFeed = (state, urlString) => {
   const watchedState = state;
   getRSScontent(urlString)
-    .catch(() => {
-      watchedState.rssForm.errors = ['error_messages.network_error'];
-    })
     .then(((resp) => XMLparser(resp.data.contents, urlString)))
     .then((parsedRSS) => {
       const {
@@ -50,9 +47,11 @@ const loadFeed = (state, urlString) => {
       watchedState.posts = unionPosts;
       watchedState.rssForm.state = 'formSubmited';
     })
-    .catch(() => {
+    .catch((e) => {
       watchedState.rssForm.validation = 'invalid';
-      if (watchedState.rssForm.errors.length === 0) {
+      if (e.message === 'Network Error') {
+        watchedState.rssForm.errors = ['error_messages.network_error'];
+      } else {
         watchedState.rssForm.errors = ['error_messages.incorrect_resource'];
       }
     });
