@@ -1,23 +1,21 @@
-import _ from 'lodash';
-
-export default (XMLstring, urlString) => {
+export default (XMLstring) => {
   const parser = new DOMParser();
   const parsedContent = parser.parseFromString(XMLstring, 'application/xml');
-  const feedID = _.uniqueId();
+  if (parsedContent.querySelector('parsererror')) {
+    throw new Error('incorrect_resource');
+  }
   const feedTitle = parsedContent.querySelector('title').textContent;
   const feedDescription = parsedContent.querySelector('description').textContent;
-  const feedLink = urlString;
   const items = Array.from(parsedContent.querySelectorAll('item'));
   const posts = items.map((item) => {
     const postTitle = item.querySelector('title').textContent;
     const postDescription = item.querySelector('description').textContent;
     const link = item.querySelector('link').textContent;
-    const postId = _.uniqueId();
     return {
-      postTitle, postDescription, link, feedID, postId,
+      postTitle, postDescription, link,
     };
   });
   return {
-    feedTitle, feedDescription, feedLink, feedID, posts,
+    feedTitle, feedDescription, posts,
   };
 };
