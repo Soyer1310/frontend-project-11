@@ -30,20 +30,26 @@ const comparePosts = (a, b) => {
   return false;
 };
 
-const loadFeed = (state, urlString) => {
-  const watchedState = state;
+const loadFeed = (watchedState, urlString) => {
   getRSScontent(urlString)
-    .then(((resp) => XMLparser(resp.data.contents, urlString)))
+    .then(((resp) => XMLparser(resp.data.contents)))
     .then((parsedRSS) => {
+      const feedID = _.uniqueId();
+      const feedLink = urlString;
       const {
-        feedTitle, feedDescription, feedLink, feedID,
+        feedTitle, feedDescription,
       } = parsedRSS;
       const feed = {
         feedTitle, feedDescription, feedLink, feedID,
       };
       watchedState.feeds.push(feed);
       const { posts } = parsedRSS;
-      const unionPosts = _.unionWith(watchedState.posts, posts, comparePosts);
+      const postsWithId = posts.map((post) => {
+        const postId = _.uniqueId();
+        post = { ...post, postId };
+        return post;
+      });
+      const unionPosts = _.unionWith(watchedState.posts, postsWithId, comparePosts);
       watchedState.posts = unionPosts;
       watchedState.rssForm.state = 'formSubmited';
     })
@@ -52,24 +58,32 @@ const loadFeed = (state, urlString) => {
       if (e.message === 'Network Error') {
         watchedState.rssForm.errors = ['error_messages.network_error'];
       } else {
-        watchedState.rssForm.errors = ['error_messages.incorrect_resource'];
+        watchedState.rssForm.errors = [`error_messages.${e.message}`];
       }
     });
 };
 
-const updater = (watchedState) => {
-  const state = watchedState;
+const updater = (state) => {
   const links = getFeedsLinks(state.feeds);
-  const requests = links.map((link) => getRSScontent(link));
-  const requestsPromise = Promise.all(requests);
-  requestsPromise.then((contents) => contents.forEach((content) => {
-    const parsedRSS = XMLparser(content.data.contents);
-    const { posts } = parsedRSS;
-    const unionPosts = _.unionWith(state.posts, posts, comparePosts);
-    state.posts = unionPosts;
-  }))
+  new Promise((resolve) => {
+    links.forEach((link) => {
+      getRSScontent(link)
+        .then(((content) => {
+          const parsedRSS = XMLparser(content.data.contents);
+          const { posts } = parsedRSS;
+          const postsWithId = posts.map((post) => {
+            const postId = _.uniqueId();
+            post = { ...post, postId };
+            return post;
+          });
+          const unionPosts = _.unionWith(state.posts, postsWithId, comparePosts);
+          state.posts = unionPosts;
+        }));
+    });
+    resolve();
+  })
     .finally(() => {
-      setTimeout(() => updater(watchedState), 5000);
+      setTimeout(() => updater(state), 5000);
     });
 };
 
