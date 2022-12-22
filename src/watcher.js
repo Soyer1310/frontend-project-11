@@ -1,7 +1,7 @@
 import onChange from 'on-change';
-import postsRender from './postsRender.js';
-import modalRender from './modalRender.js';
-import visitRender from './visitRender.js';
+import renderPosts from './renderPosts.js';
+import renderModal from './renderModal.js';
+import renderVisited from './renderVisited.js';
 import buildCard from './buildCard.js';
 
 const buildFeedsList = (state, i18nInstance, elements) => {
@@ -41,7 +41,7 @@ const initializatior = (i18nInstance, elements) => {
   messagesElem.textContent = '';
 };
 
-const render = (state, i18nInstance, elements) => {
+const renderForm = (state, i18nInstance, elements) => {
   const { input } = elements;
   const { messagesElem } = elements;
   initializatior(i18nInstance, elements);
@@ -68,15 +68,14 @@ const render = (state, i18nInstance, elements) => {
 };
 
 export default (state, i18nInstance, elements) => {
-  render(state, i18nInstance, elements);
   const watchedState = onChange(state, (path) => {
     if (path === 'posts') {
-      postsRender(state, i18nInstance, elements);
+      renderPosts(state, i18nInstance, elements);
     } else if (path === 'modal.modalPostId') {
-      modalRender(state, elements);
-      visitRender(state.visitedPosts);
-    } else {
-      render(state, i18nInstance, elements);
+      renderModal(state, elements);
+      renderVisited(state.visitedPosts);
+    } else if (path === 'rssForm.state' || path === 'rssForm.validation') {
+      renderForm(state, i18nInstance, elements);
     }
   });
   return watchedState;
