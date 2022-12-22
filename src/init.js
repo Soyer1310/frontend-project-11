@@ -54,12 +54,12 @@ const loadFeed = (watchedState, urlString) => {
       watchedState.rssForm.state = 'formSubmited';
     })
     .catch((e) => {
-      watchedState.rssForm.validation = 'invalid';
       if (e.message === 'Network Error') {
         watchedState.rssForm.errors = ['error_messages.network_error'];
       } else {
         watchedState.rssForm.errors = [`error_messages.${e.message}`];
       }
+      watchedState.rssForm.validation = 'invalid';
     });
 };
 
@@ -108,7 +108,7 @@ export default () => {
   }).then(() => {
     const state = {
       rssForm: {
-        state: 'formFilling',
+        state: null,
         errors: [],
         validation: 'valid',
       },
@@ -133,9 +133,11 @@ export default () => {
     };
 
     const watchedState = watcher(state, i18nInstance, elements);
+    watchedState.rssForm.state = 'formFilling';
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       watchedState.rssForm.state = 'formFilling';
+      watchedState.rssForm.validation = 'valid';
       watchedState.rssForm.errors = [];
       const formData = new FormData(e.target);
       const urlString = formData.get('url');
@@ -143,9 +145,9 @@ export default () => {
         watchedState.rssForm.validation = 'valid';
         loadFeed(watchedState, urlString);
       }).catch((error) => {
-        watchedState.rssForm.validation = 'invalid';
         const messages = error.errors.map((err) => `error_messages.${err}`);
         watchedState.rssForm.errors = messages;
+        watchedState.rssForm.validation = 'invalid';
       });
     });
     elements.postsContainer.addEventListener('click', (e) => {
