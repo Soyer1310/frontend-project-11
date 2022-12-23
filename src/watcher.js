@@ -14,10 +14,10 @@ const buildFeedsList = (state, i18nInstance, elements) => {
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
     const h3 = document.createElement('h3');
     h3.classList.add('h6', 'm-0');
-    h3.textContent = feed.feedTitle;
+    h3.textContent = feed.title;
     const p = document.createElement('p');
     p.classList.add('m-0', 'small', 'text-black-50');
-    p.textContent = feed.feedDescription;
+    p.textContent = feed.description;
     li.append(h3, p);
     ul.append(li);
   });

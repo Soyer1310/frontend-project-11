@@ -6,7 +6,7 @@ import resources from './locales/index.js';
 import XMLparser from './parser.js';
 import watcher from './watcher.js';
 
-const getFeedsLinks = (feeds) => feeds.map((feed) => feed.feedLink);
+const getFeedsLinks = (feeds) => feeds.map((feed) => feed.link);
 
 const validate = (value, feedList) => {
   const links = getFeedsLinks(feedList);
@@ -24,7 +24,7 @@ const getRSScontent = (url) => {
 };
 
 const comparePosts = (a, b) => {
-  if (a.postTitle === b.postTitle && a.postDescription === b.postDescription) {
+  if (a.title === b.title && a.description === b.description) {
     return true;
   }
   return false;
@@ -34,19 +34,19 @@ const loadFeed = (watchedState, urlString) => {
   getRSScontent(urlString)
     .then((resp) => {
       const parsedRSS = XMLparser(resp.data.contents);
-      const feedID = _.uniqueId();
-      const feedLink = urlString;
+      const id = _.uniqueId();
+      const link = urlString;
       const {
         feedTitle, feedDescription,
       } = parsedRSS;
       const feed = {
-        feedTitle, feedDescription, feedLink, feedID,
+        title: feedTitle, description: feedDescription, link, id,
       };
       watchedState.feeds.push(feed);
       const { posts } = parsedRSS;
       const postsWithId = posts.map((post) => {
         const postId = _.uniqueId();
-        post = { ...post, postId };
+        post = { ...post, id: postId };
         return post;
       });
       const unionPosts = _.unionWith(watchedState.posts, postsWithId, comparePosts);
@@ -73,7 +73,7 @@ const updater = (state) => {
           const { posts } = parsedRSS;
           const postsWithId = posts.map((post) => {
             const postId = _.uniqueId();
-            post = { ...post, postId };
+            post = { ...post, id: postId };
             return post;
           });
           const unionPosts = _.unionWith(state.posts, postsWithId, comparePosts);
