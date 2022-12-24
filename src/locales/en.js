@@ -16,7 +16,7 @@ export default {
       required_feild: 'This is a required field',
       network_error: 'Network error',
       parsing_error: 'Parsing error',
-
+      unknown_error: 'Unknown error. Somthing went wrong...',
     },
   },
 };

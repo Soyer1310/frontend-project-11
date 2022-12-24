@@ -47,7 +47,7 @@ const renderForm = (state, i18nInstance, elements) => {
   initializatior(i18nInstance, elements);
   if (state.rssForm.validation === 'invalid') {
     input.classList.add('is-invalid');
-    messagesElem.textContent = state.rssForm.errors.map((err) => i18nInstance.t(err)).join('\n');
+    messagesElem.textContent = i18nInstance.t(state.rssForm.errors);
     input.blur();
   }
   if (state.rssForm.validation === 'valid') {

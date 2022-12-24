@@ -1,8 +1,12 @@
 export default (XMLstring) => {
   const parser = new DOMParser();
   const parsedContent = parser.parseFromString(XMLstring, 'application/xml');
-  if (parsedContent.querySelector('parsererror')) {
-    throw new Error('incorrect_resource');
+  const parseError = parsedContent.querySelector('parsererror');
+  if (parseError) {
+    const error = new Error(parseError.textContent);
+    error.isParsingError = true;
+    error.data = 'incorrect_resource';
+    throw error;
   }
   const feedTitle = parsedContent.querySelector('title').textContent;
   const feedDescription = parsedContent.querySelector('description').textContent;

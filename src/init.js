@@ -24,8 +24,10 @@ const getRSScontent = (url) => {
 };
 
 const comparePosts = (a, b) => {
-  if (a.title === b.title && a.description === b.description) {
-    return true;
+  if (a.feedId === b.feedId) {
+    if (a.title === b.title && a.description === b.description) {
+      return true;
+    }
   }
   return false;
 };
@@ -34,19 +36,19 @@ const loadFeed = (watchedState, urlString) => {
   getRSScontent(urlString)
     .then((resp) => {
       const parsedRSS = XMLparser(resp.data.contents);
-      const id = _.uniqueId();
+      const feedId = _.uniqueId();
       const link = urlString;
       const {
         feedTitle, feedDescription,
       } = parsedRSS;
       const feed = {
-        title: feedTitle, description: feedDescription, link, id,
+        title: feedTitle, description: feedDescription, link, id: feedId,
       };
       watchedState.feeds.push(feed);
       const { posts } = parsedRSS;
       const postsWithId = posts.map((post) => {
         const postId = _.uniqueId();
-        post = { ...post, id: postId };
+        post = { ...post, feedId, id: postId };
         return post;
       });
       const unionPosts = _.unionWith(watchedState.posts, postsWithId, comparePosts);
@@ -54,10 +56,12 @@ const loadFeed = (watchedState, urlString) => {
       watchedState.rssForm.state = 'formSubmited';
     })
     .catch((e) => {
-      if (e.message === 'Network Error') {
-        watchedState.rssForm.errors = ['error_messages.network_error'];
+      if (e.isAxiosError) {
+        watchedState.rssForm.errors = 'error_messages.network_error';
+      } else if (e.isParsingError) {
+        watchedState.rssForm.errors = `error_messages.${e.data}`;
       } else {
-        watchedState.rssForm.errors = [`error_messages.${e.message}`];
+        watchedState.rssForm.errors = 'error_messages.unknown_error';
       }
       watchedState.rssForm.validation = 'invalid';
     });
@@ -65,23 +69,21 @@ const loadFeed = (watchedState, urlString) => {
 
 const updater = (state) => {
   const links = getFeedsLinks(state.feeds);
-  new Promise((resolve) => {
-    links.forEach((link) => {
-      getRSScontent(link)
-        .then(((content) => {
-          const parsedRSS = XMLparser(content.data.contents);
-          const { posts } = parsedRSS;
-          const postsWithId = posts.map((post) => {
-            const postId = _.uniqueId();
-            post = { ...post, id: postId };
-            return post;
-          });
-          const unionPosts = _.unionWith(state.posts, postsWithId, comparePosts);
-          state.posts = unionPosts;
-        }));
-    });
-    resolve();
-  })
+  const parsedRSSData = links.map((link) => getRSScontent(link)
+    .then((content) => {
+      const currentFeedId = state.feeds.find((feed) => feed.link === link).id;
+      const parsedRSS = XMLparser(content.data.contents);
+      const { posts } = parsedRSS;
+      const postsWithId = posts.map((post) => {
+        const postId = _.uniqueId();
+        post = { ...post, feedId: currentFeedId, id: postId };
+        return post;
+      });
+      const unionPosts = _.unionWith(state.posts, postsWithId, comparePosts);
+      state.posts = unionPosts;
+      return null;
+    }));
+  Promise.all(parsedRSSData)
     .finally(() => {
       setTimeout(() => updater(state), 5000);
     });
@@ -109,7 +111,7 @@ export default () => {
     const state = {
       rssForm: {
         state: null,
-        errors: [],
+        errors: null,
         validation: 'valid',
       },
       modal: {
@@ -145,8 +147,8 @@ export default () => {
         watchedState.rssForm.validation = 'valid';
         loadFeed(watchedState, urlString);
       }).catch((error) => {
-        const messages = error.errors.map((err) => `error_messages.${err}`);
-        watchedState.rssForm.errors = messages;
+        const message = `error_messages.${error.message}`;
+        watchedState.rssForm.errors = message;
         watchedState.rssForm.validation = 'invalid';
       });
     });
