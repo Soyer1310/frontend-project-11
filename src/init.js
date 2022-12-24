@@ -54,6 +54,7 @@ const loadFeed = (watchedState, urlString) => {
       const unionPosts = _.unionWith(watchedState.posts, postsWithId, comparePosts);
       watchedState.posts = unionPosts;
       watchedState.rssForm.state = 'formSubmited';
+      watchedState.rssForm.validation = 'valid';
     })
     .catch((e) => {
       if (e.isAxiosError) {
@@ -110,7 +111,7 @@ export default () => {
   }).then(() => {
     const state = {
       rssForm: {
-        state: null,
+        state: 'formFilling',
         errors: null,
         validation: 'valid',
       },
@@ -135,18 +136,19 @@ export default () => {
     };
 
     const watchedState = watcher(state, i18nInstance, elements);
-    watchedState.rssForm.state = 'formFilling';
     elements.form.addEventListener('submit', (e) => {
+      console.log(watchedState.rssForm.errors);
       e.preventDefault();
-      watchedState.rssForm.state = 'formFilling';
-      watchedState.rssForm.validation = 'valid';
-      watchedState.rssForm.errors = [];
       const formData = new FormData(e.target);
       const urlString = formData.get('url');
+      watchedState.rssForm.validation = 'valid';
       validate(urlString, watchedState.feeds).then(() => {
+        watchedState.rssForm.state = 'formFilling';
+        watchedState.rssForm.errors = null;
         watchedState.rssForm.validation = 'valid';
         loadFeed(watchedState, urlString);
       }).catch((error) => {
+        watchedState.rssForm.state = 'formFilling';
         const message = `error_messages.${error.message}`;
         watchedState.rssForm.errors = message;
         watchedState.rssForm.validation = 'invalid';
