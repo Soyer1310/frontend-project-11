@@ -68,11 +68,13 @@ const renderForm = (state, i18nInstance, elements) => {
 };
 
 export default (state, i18nInstance, elements) => {
+  initializatior(i18nInstance, elements);
   const watchedState = onChange(state, (path) => {
     if (path === 'posts') {
       renderPosts(state, i18nInstance, elements);
     } else if (path === 'modal.modalPostId') {
       renderModal(state, elements);
+    } else if (path === 'visitedPosts') {
       renderVisited(state.visitedPosts);
     } else if (path === 'rssForm.state' || path === 'rssForm.validation') {
       renderForm(state, i18nInstance, elements);
