@@ -50,7 +50,7 @@ const loadFeed = (watchedState, url) => {
       });
       const unionPosts = _.union(watchedState.posts, postsWithId);
       watchedState.posts = unionPosts;
-      watchedState.rssForm.state = 'formSubmited';
+      watchedState.rssForm.state = 'loaded';
       watchedState.rssForm.validation = 'valid';
     })
     .catch((e) => {
@@ -61,6 +61,7 @@ const loadFeed = (watchedState, url) => {
       } else {
         watchedState.rssForm.error = 'error_messages.unknown_error';
       }
+      watchedState.rssForm.state = 'formFilling';
       watchedState.rssForm.validation = 'invalid';
     });
 };
@@ -137,9 +138,8 @@ export default () => {
       e.preventDefault();
       const formData = new FormData(e.target);
       const urlString = formData.get('url');
-      watchedState.rssForm.validation = 'valid';
       validate(urlString, watchedState.feeds).then(() => {
-        watchedState.rssForm.state = 'formFilling';
+        watchedState.rssForm.state = 'loading';
         watchedState.rssForm.error = null;
         watchedState.rssForm.validation = 'valid';
         loadFeed(watchedState, urlString);
