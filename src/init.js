@@ -30,12 +30,12 @@ const comparePosts = (a, b) => {
   return false;
 };
 
-const loadFeed = (watchedState, urlString) => {
-  getRSScontent(urlString)
+const loadFeed = (watchedState, url) => {
+  getRSScontent(url)
     .then((resp) => {
       const parsedRSS = XMLparser(resp.data.contents);
       const feedId = _.uniqueId();
-      const link = urlString;
+      const link = url;
       const {
         feedTitle, feedDescription,
       } = parsedRSS;
