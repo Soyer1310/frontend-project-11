@@ -5,7 +5,7 @@ export default (XMLstring) => {
   if (parseError) {
     const error = new Error(parseError.textContent);
     error.isParsingError = true;
-    error.data = 'incorrect_resource';
+    error.data = XMLstring;
     throw error;
   }
   const feedTitle = parsedContent.querySelector('title').textContent;
