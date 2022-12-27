@@ -55,7 +55,7 @@ const loadFeed = (watchedState, url) => {
     })
     .catch((e) => {
       if (e.isAxiosError) {
-        watchedState.rssForm.errors = 'error_messages.network_error';
+        watchedState.rssForm.error = 'error_messages.network_error';
       } else if (e.isParsingError) {
         watchedState.rssForm.error = 'error_messages.incorrect_resource';
       } else {
@@ -134,7 +134,6 @@ export default () => {
 
     const watchedState = watcher(state, i18nInstance, elements);
     elements.form.addEventListener('submit', (e) => {
-      console.log(watchedState.rssForm.errors);
       e.preventDefault();
       const formData = new FormData(e.target);
       const urlString = formData.get('url');
