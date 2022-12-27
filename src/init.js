@@ -6,12 +6,12 @@ import resources from './locales/index.js';
 import XMLparser from './parser.js';
 import watcher from './watcher.js';
 
-const getFeedsLinks = (feeds) => feeds.map((feed) => feed.link);
+const getFeedsUrls = (feeds) => feeds.map((feed) => feed.url);
 
 const validate = (value, feedList) => {
-  const links = getFeedsLinks(feedList);
+  const urls = getFeedsUrls(feedList);
   const urlSchema = yup.string().url().required().notOneOf(
-    links,
+    urls,
   );
   return urlSchema.validate(value, { abortEarly: false });
 };
@@ -35,12 +35,11 @@ const loadFeed = (watchedState, url) => {
     .then((resp) => {
       const parsedRSS = XMLparser(resp.data.contents);
       const feedId = _.uniqueId();
-      const link = url;
       const {
         feedTitle, feedDescription,
       } = parsedRSS;
       const feed = {
-        title: feedTitle, description: feedDescription, link, id: feedId,
+        title: feedTitle, description: feedDescription, url, id: feedId,
       };
       watchedState.feeds.push(feed);
       const { posts } = parsedRSS;
@@ -67,10 +66,10 @@ const loadFeed = (watchedState, url) => {
 };
 
 const updater = (state) => {
-  const links = getFeedsLinks(state.feeds);
-  const parsedRSSData = links.map((link) => getRSScontent(link)
+  const urls = getFeedsUrls(state.feeds);
+  const parsedRSSData = urls.map((url) => getRSScontent(url)
     .then((content) => {
-      const currentFeedId = state.feeds.find((feed) => feed.link === link).id;
+      const currentFeedId = state.feeds.find((feed) => feed.url === url).id;
       const parsedRSS = XMLparser(content.data.contents);
       const { posts } = parsedRSS;
       const postsWithId = posts.map((post) => {

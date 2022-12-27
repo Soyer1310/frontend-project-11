@@ -15,7 +15,7 @@ export default (state, i18nInstance, elements) => {
     } else {
       link.classList.add('fw-bold');
     }
-    link.setAttribute('href', post.link);
+    link.setAttribute('href', post.url);
     link.setAttribute('target', 'blank');
     link.dataset.id = post.id;
     link.textContent = post.title;
