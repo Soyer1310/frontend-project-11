@@ -24,10 +24,8 @@ const getRSScontent = (url) => {
 };
 
 const comparePosts = (a, b) => {
-  if (a.feedId === b.feedId) {
-    if (a.title === b.title && a.description === b.description) {
-      return true;
-    }
+  if (a.feedId === b.feedId && a.title === b.title && a.description === b.description) {
+    return true;
   }
   return false;
 };
