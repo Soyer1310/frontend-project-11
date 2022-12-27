@@ -59,7 +59,6 @@ const renderForm = (state, i18nInstance, elements) => {
     messagesElem.classList.remove('text-danger');
     messagesElem.classList.add('text-success');
     messagesElem.textContent = i18nInstance.t('successful_message');
-    buildFeedsList(state, i18nInstance, elements);
     input.removeAttribute('disabled');
     input.value = '';
     input.focus();
@@ -87,6 +86,8 @@ export default (state, i18nInstance, elements) => {
       renderVisited(state.visitedPosts);
     } else if (path === 'rssForm.state' || path === 'rssForm.validation' || path === 'rssForm.error') {
       renderForm(state, i18nInstance, elements);
+    } else if (path === 'feeds') {
+      buildFeedsList(state, i18nInstance, elements);
     }
   });
   return watchedState;
