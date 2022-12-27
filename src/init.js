@@ -57,7 +57,7 @@ const loadFeed = (watchedState, url) => {
       if (e.isAxiosError) {
         watchedState.rssForm.errors = 'error_messages.network_error';
       } else if (e.isParsingError) {
-        watchedState.rssForm.errors = `error_messages.${e.data}`;
+        watchedState.rssForm.errors = 'error_messages.incorrect_resource';
       } else {
         watchedState.rssForm.errors = 'error_messages.unknown_error';
       }
