@@ -48,7 +48,7 @@ const loadFeed = (watchedState, url) => {
         post = { ...post, feedId, id: postId };
         return post;
       });
-      const unionPosts = _.unionWith(watchedState.posts, postsWithId, comparePosts);
+      const unionPosts = _.union(watchedState.posts, postsWithId);
       watchedState.posts = unionPosts;
       watchedState.rssForm.state = 'formSubmited';
       watchedState.rssForm.validation = 'valid';
