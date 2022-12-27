@@ -47,23 +47,32 @@ const renderForm = (state, i18nInstance, elements) => {
   initializatior(i18nInstance, elements);
   if (state.rssForm.validation === 'invalid') {
     input.classList.add('is-invalid');
-    messagesElem.textContent = i18nInstance.t(state.rssForm.errors);
+    messagesElem.textContent = i18nInstance.t(state.rssForm.error);
     input.blur();
   }
+
   if (state.rssForm.validation === 'valid') {
     input.classList.remove('is-invalid');
   }
-  if (state.rssForm.state === 'formSubmited') {
+
+  if (state.rssForm.state === 'loaded') {
     messagesElem.classList.remove('text-danger');
     messagesElem.classList.add('text-success');
     messagesElem.textContent = i18nInstance.t('successful_message');
     buildFeedsList(state, i18nInstance, elements);
+    input.removeAttribute('disabled');
     input.value = '';
     input.focus();
   }
+
+  if (state.rssForm.state === 'loading') {
+    input.setAttribute('disabled', 'disabled');
+  }
+
   if (state.rssForm.state === 'formFilling') {
     messagesElem.classList.add('text-danger');
     messagesElem.classList.remove('text-success');
+    input.removeAttribute('disabled');
   }
 };
 
@@ -76,7 +85,7 @@ export default (state, i18nInstance, elements) => {
       renderModal(state, elements);
     } else if (path === 'visitedPosts') {
       renderVisited(state.visitedPosts);
-    } else if (path === 'rssForm.state' || path === 'rssForm.validation') {
+    } else if (path === 'rssForm.state' || path === 'rssForm.validation' || path === 'rssForm.error') {
       renderForm(state, i18nInstance, elements);
     }
   });
