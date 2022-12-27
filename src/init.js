@@ -57,9 +57,9 @@ const loadFeed = (watchedState, url) => {
       if (e.isAxiosError) {
         watchedState.rssForm.errors = 'error_messages.network_error';
       } else if (e.isParsingError) {
-        watchedState.rssForm.errors = 'error_messages.incorrect_resource';
+        watchedState.rssForm.error = 'error_messages.incorrect_resource';
       } else {
-        watchedState.rssForm.errors = 'error_messages.unknown_error';
+        watchedState.rssForm.error = 'error_messages.unknown_error';
       }
       watchedState.rssForm.validation = 'invalid';
     });
@@ -109,7 +109,7 @@ export default () => {
     const state = {
       rssForm: {
         state: 'formFilling',
-        errors: null,
+        error: null,
         validation: 'valid',
       },
       modal: {
@@ -141,13 +141,13 @@ export default () => {
       watchedState.rssForm.validation = 'valid';
       validate(urlString, watchedState.feeds).then(() => {
         watchedState.rssForm.state = 'formFilling';
-        watchedState.rssForm.errors = null;
+        watchedState.rssForm.error = null;
         watchedState.rssForm.validation = 'valid';
         loadFeed(watchedState, urlString);
       }).catch((error) => {
         watchedState.rssForm.state = 'formFilling';
         const message = `error_messages.${error.message}`;
-        watchedState.rssForm.errors = message;
+        watchedState.rssForm.error = message;
         watchedState.rssForm.validation = 'invalid';
       });
     });
