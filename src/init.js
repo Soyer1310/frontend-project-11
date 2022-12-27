@@ -67,7 +67,7 @@ const loadFeed = (watchedState, url) => {
 
 const updater = (state) => {
   const urls = getFeedsUrls(state.feeds);
-  const parsedRSSData = urls.map((url) => getRSScontent(url)
+  const promises = urls.map((url) => getRSScontent(url)
     .then((content) => {
       const currentFeedId = state.feeds.find((feed) => feed.url === url).id;
       const parsedRSS = XMLparser(content.data.contents);
@@ -81,7 +81,7 @@ const updater = (state) => {
       state.posts = unionPosts;
       return null;
     }));
-  Promise.all(parsedRSSData)
+  Promise.all(promises)
     .finally(() => {
       setTimeout(() => updater(state), 5000);
     });
