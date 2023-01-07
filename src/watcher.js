@@ -83,7 +83,7 @@ export default (state, i18nInstance, elements) => {
     } else if (path === 'modal.modalPostId') {
       renderModal(state, elements);
     } else if (path === 'visitedPosts') {
-      renderVisited(state.visitedPosts);
+      renderVisited(state.visitedPosts, elements);
     } else if (path === 'rssForm.state' || path === 'rssForm.validation' || path === 'rssForm.error') {
       renderForm(state, i18nInstance, elements);
     } else if (path === 'feeds') {

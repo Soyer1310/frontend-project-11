@@ -1,5 +1,5 @@
-export default (visited) => {
-  const links = Array.from(document.querySelectorAll('a'));
+export default (visited, elements) => {
+  const links = Array.from(elements.postsContainer.querySelectorAll('a'));
   links.forEach((link) => {
     if (visited.includes(link.dataset.id)) {
       link.classList.remove('fw-bold');
